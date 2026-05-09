@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DouWan Free — Screen Mirroring</title>
+    <meta name="description" content="Free open-source screen mirroring. USB and wireless casting from phone to PC. No login required.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/index.css">
+</head>
+<body>
+    <!-- ═══ TOP NAV ═══ -->
+    <nav class="topnav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">
+                <div class="logo-icon">⬡</div>
+                <span>DouWan <em>Free</em></span>
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#mirror" class="nav-cta">Start Mirroring</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ HERO ═══ -->
+    <section class="hero">
+        <div class="hero-bg-shapes">
+            <div class="shape s1"></div><div class="shape s2"></div><div class="shape s3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">100% Free &bull; No Login &bull; Open Source</div>
+            <h1>Plug & Play<br>Screen Mirroring</h1>
+            <p class="hero-sub">Mirror your Android phone to PC in 2K/4K Ultra HD — wired or wireless, silky-smooth, ultra-low latency. No account needed.</p>
+            <div class="hero-btns">
+                <a href="#mirror" class="btn btn-primary">Start Mirroring</a>
+                <a href="#features" class="btn btn-ghost">Learn More ↓</a>
+            </div>
+            <div class="hero-stats">
+                <div><strong>4K</strong><span>Ultra HD</span></div>
+                <div><strong>120</strong><span>Max FPS</span></div>
+                <div><strong>~0ms</strong><span>USB Latency</span></div>
+                <div><strong>128</strong><span>Max Devices</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ FEATURES GRID ═══ -->
+    <section id="features" class="features-section">
+        <h2 class="section-title">Everything You Need</h2>
+        <p class="section-sub">Screen casting, recording, multi-device — handled.</p>
+        <div class="features-grid">
+            <div class="feat-card"><div class="feat-icon">⚡</div><h3>Plug & Play</h3><p>Just plug in your USB cable. No hotspot, no WiFi needed for wired mode.</p></div>
+            <div class="feat-card"><div class="feat-icon">📺</div><h3>2K/4K Ultra HD</h3><p>Up to 4K resolution at 60-120 FPS with zero stutter.</p></div>
+            <div class="feat-card"><div class="feat-icon">📶</div><h3>Wireless Mode</h3><p>Cast wirelessly over WiFi. Auto-discover devices on the same network.</p></div>
+            <div class="feat-card"><div class="feat-icon">🎮</div><h3>PC Control</h3><p>Control your phone with keyboard and mouse from your PC.</p></div>
+            <div class="feat-card"><div class="feat-icon">📷</div><h3>Virtual Webcam</h3><p>Use your phone camera in OBS, Zoom, Discord, and more.</p></div>
+            <div class="feat-card"><div class="feat-icon">🔴</div><h3>Record Screen</h3><p>Record your phone screen in 2K/4K directly to your PC.</p></div>
+            <div class="feat-card"><div class="feat-icon">🔋</div><h3>Charge & Cast</h3><p>Play on the big screen while your phone charges via USB.</p></div>
+            <div class="feat-card"><div class="feat-icon">📱</div><h3>Multi-Device</h3><p>Mirror up to 128 devices simultaneously.</p></div>
+            <div class="feat-card"><div class="feat-icon">🔒</div><h3>Privacy First</h3><p>Direct local connection — your video never touches the cloud.</p></div>
+        </div>
+    </section>
+
+    <!-- ═══ HOW IT WORKS ═══ -->
+    <section id="how-it-works" class="steps-section">
+        <h2 class="section-title">How It Works</h2>
+        <div class="steps-row">
+            <div class="step-card"><div class="step-num">1</div><h3>Connect</h3><p>Plug in USB or enter your phone's IP for wireless mode.</p></div>
+            <div class="step-card"><div class="step-num">2</div><h3>Detect</h3><p>Your device appears automatically. Click to select it.</p></div>
+            <div class="step-card"><div class="step-num">3</div><h3>Mirror</h3><p>Hit Start — your phone screen appears on PC instantly.</p></div>
+        </div>
+    </section>
+
+    <!-- ═══ MIRRORING DASHBOARD ═══ -->
+    <section id="mirror" class="mirror-section">
+        <h2 class="section-title">Mirroring Dashboard</h2>
+        <div class="dash-container">
+            <!-- LEFT: Connection Panel -->
+            <div class="dash-sidebar">
+                <div class="conn-tabs">
+                    <button class="tab-btn active" data-tab="usb">USB (Wired)</button>
+                    <button class="tab-btn" data-tab="wifi">WiFi (Wireless)</button>
+                </div>
+
+                <!-- USB TAB -->
+                <div id="tab-usb" class="tab-content active">
+                    <p class="tab-hint">Plug in your Android phone via USB with USB Debugging enabled.</p>
+                    <button id="refresh-btn" class="btn btn-secondary btn-full">↻ Scan USB Devices</button>
+                </div>
+
+                <!-- WIFI TAB -->
+                <div id="tab-wifi" class="tab-content">
+                    <p class="tab-hint">Connect wirelessly over your local network.</p>
+                    <div class="wifi-mode-tabs">
+                        <button class="wifi-tab active" data-wifi="connect">Quick Connect</button>
+                        <button class="wifi-tab" data-wifi="pair">Pair (Android 11+)</button>
+                        <button class="wifi-tab" data-wifi="switch">USB → WiFi</button>
+                    </div>
+                    <div id="wifi-connect" class="wifi-panel active">
+                        <label>Phone IP Address<input type="text" id="wifi-ip" placeholder="192.168.1.x"></label>
+                        <label>Port<input type="text" id="wifi-port" value="5555"></label>
+                        <button id="wifi-connect-btn" class="btn btn-primary btn-full">Connect</button>
+                    </div>
+                    <div id="wifi-pair" class="wifi-panel">
+                        <label>Phone IP<input type="text" id="pair-ip" placeholder="192.168.1.x"></label>
+                        <label>Pairing Port<input type="text" id="pair-port" placeholder="e.g. 37123"></label>
+                        <label>Pairing Code<input type="text" id="pair-code" placeholder="6-digit code"></label>
+                        <button id="wifi-pair-btn" class="btn btn-primary btn-full">Pair Device</button>
+                    </div>
+                    <div id="wifi-switch" class="wifi-panel">
+                        <p class="tab-hint">First connect via USB, then switch to wireless.</p>
+                        <button id="wifi-switch-btn" class="btn btn-secondary btn-full">Switch to WiFi</button>
+                    </div>
+                    <button id="refresh-wifi-btn" class="btn btn-secondary btn-full" style="margin-top:0.75rem">↻ Scan All Devices</button>
+                </div>
+
+                <!-- DEVICE LIST -->
+                <div class="device-list-wrap">
+                    <h3>Detected Devices</h3>
+                    <div id="device-list"></div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Controls -->
+            <div class="dash-main">
+                <div id="no-device-msg" class="empty-dash">
+                    <div class="empty-icon">📱</div>
+                    <h3>No Device Selected</h3>
+                    <p>Connect a device using USB or WiFi, then select it from the list.</p>
+                </div>
+                <div id="device-controls" class="device-controls hidden">
+                    <div class="ctrl-header">
+                        <div>
+                            <h3 id="ctrl-device-name">Device</h3>
+                            <span id="ctrl-device-id" class="ctrl-sub"></span>
+                        </div>
+                        <span id="ctrl-conn-badge" class="conn-badge">USB</span>
+                    </div>
+                    <div id="ctrl-details" class="ctrl-details"></div>
+
+                    <div class="ctrl-grid">
+                        <label>Max Resolution<select id="opt-res"><option value="0">Native</option><option value="1920">1080p</option><option value="1280">720p</option><option value="640">480p</option></select></label>
+                        <label>Max FPS<select id="opt-fps"><option value="60">60</option><option value="120">120</option><option value="30">30</option></select></label>
+                        <label>Bitrate<select id="opt-bitrate"><option value="8M">8 Mbps</option><option value="16M">16 Mbps</option><option value="32M">32 Mbps</option><option value="4M">4 Mbps</option></select></label>
+                    </div>
+
+                    <div class="ctrl-toggles">
+                        <label class="toggle"><input type="checkbox" id="opt-audio" checked><span>Audio</span></label>
+                        <label class="toggle"><input type="checkbox" id="opt-control" checked><span>PC Control</span></label>
+                        <label class="toggle"><input type="checkbox" id="opt-awake" checked><span>Stay Awake</span></label>
+                        <label class="toggle"><input type="checkbox" id="opt-borderless"><span>Borderless</span></label>
+                        <label class="toggle"><input type="checkbox" id="opt-ontop"><span>Always on Top</span></label>
+                        <label class="toggle"><input type="checkbox" id="opt-fullscreen"><span>Fullscreen</span></label>
+                    </div>
+
+                    <div class="ctrl-actions">
+                        <button id="start-btn" class="btn btn-primary btn-lg">▶ Start Mirroring</button>
+                        <button id="stop-btn" class="btn btn-danger btn-lg hidden">■ Stop</button>
+                    </div>
+                    <div id="status-msg" class="status-msg"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="site-footer">
+        <p>DouWan Free — Open Source Screen Mirroring &bull; Powered by <a href="https://github.com/Genymobile/scrcpy" target="_blank">scrcpy</a> + ADB</p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
