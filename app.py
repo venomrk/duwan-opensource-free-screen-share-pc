@@ -12,8 +12,17 @@ import threading
 import json
 import time
 import socket
+import sys
 
-app = Flask(__name__)
+def get_base_path():
+    if getattr(sys, 'frozen', False):
+        return sys._MEIPASS
+    return os.path.dirname(os.path.abspath(__file__))
+
+base_path = get_base_path()
+app = Flask(__name__, 
+            template_folder=os.path.join(base_path, 'templates'),
+            static_folder=os.path.join(base_path, 'static'))
 
 # ── Global state ──────────────────────────────────────────────
 active_sessions = {}          # device_id -> Popen handle
