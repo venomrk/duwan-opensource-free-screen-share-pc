@@ -82,6 +82,7 @@
                 <div class="conn-tabs">
                     <button class="tab-btn active" data-tab="usb">USB (Wired)</button>
                     <button class="tab-btn" data-tab="wifi">WiFi (Wireless)</button>
+                    <button class="tab-btn" data-tab="stream">Multistreaming</button>
                 </div>
 
                 <!-- USB TAB -->
@@ -114,6 +115,15 @@
                         <button id="wifi-switch-btn" class="btn btn-secondary btn-full">Switch to WiFi</button>
                     </div>
                     <button id="refresh-wifi-btn" class="btn btn-secondary btn-full" style="margin-top:0.75rem">↻ Scan All Devices</button>
+                </div>
+
+                <!-- STREAM TAB -->
+                <div id="tab-stream" class="tab-content">
+                    <p class="tab-hint">Enter your stream keys and Go Live on multiple platforms at once.</p>
+                    <div id="stream-platforms-list" class="stream-settings">
+                        <!-- Populated by JS -->
+                    </div>
+                    <button id="save-stream-btn" class="btn btn-secondary btn-full" style="margin-top:1rem">Save Stream Keys</button>
                 </div>
 
                 <!-- DEVICE LIST -->
@@ -153,11 +163,17 @@
                         <label class="toggle"><input type="checkbox" id="opt-borderless"><span>Borderless</span></label>
                         <label class="toggle"><input type="checkbox" id="opt-ontop"><span>Always on Top</span></label>
                         <label class="toggle"><input type="checkbox" id="opt-fullscreen"><span>Fullscreen</span></label>
+                        <label class="toggle" style="color:var(--primary); font-weight:bold;"><input type="checkbox" id="opt-stream-mode"><span>Enable Streaming Output</span></label>
+                        <label class="toggle" style="color:#5d6cfc; font-weight:bold;"><input type="checkbox" id="opt-obs-plugin"><span>OBS Plugin Mode</span></label>
                     </div>
 
                     <div class="ctrl-actions">
                         <button id="start-btn" class="btn btn-primary btn-lg">▶ Start Mirroring</button>
-                        <button id="stop-btn" class="btn btn-danger btn-lg hidden">■ Stop</button>
+                        <div id="active-ctrls" class="hidden" style="display: flex; flex-wrap: wrap; gap: 0.75rem; width: 100%;">
+                            <button id="vcam-btn" class="btn btn-secondary btn-lg" style="flex:1">▶ Virtual Cam</button>
+                            <button id="go-live-btn" class="btn btn-primary btn-lg" style="flex:1">🔴 Go Live</button>
+                            <button id="stop-btn" class="btn btn-danger btn-lg" style="flex:1">■ Stop</button>
+                        </div>
                     </div>
                     <div id="status-msg" class="status-msg"></div>
                 </div>

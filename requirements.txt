@@ -1,2 +1,7 @@
 Flask
 pywebview
+mss
+pygetwindow
+pyvirtualcam
+numpy
+opencv-python

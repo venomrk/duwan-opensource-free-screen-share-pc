@@ -1,47 +1,42 @@
-# DouWan Free — Open Source Screen Mirroring
+# DouWan Free — Open Source Screen Mirroring Engine
 
-DouWan Free is a completely free, open-source, and localized screen mirroring application for Windows. It provides ultra-low latency mirroring, device control, and an elegant Glassmorphic UI to seamlessly cast your Android device to your PC via USB or Wireless (WiFi).
+DouWan Free is a powerful, open-source, and localized screen mirroring application for Windows. It provides ultra-low latency mirroring, device control, and a modern UI to seamlessly cast your Android device to your PC.
 
 ![DouWan Free Screenshot](assets/screenshot.png)
 
-## Features
+## 🚀 Latest Features (V2.0)
 
-- **Plug & Play USB Mirroring**: Connect your Android device via USB and mirror instantly.
-- **Wireless Mirroring**: Auto-discover and connect to devices over the same network via ADB TCP/IP.
-- **Android 11+ Wireless Pairing**: Pair devices over WiFi without ever needing a USB cable.
-- **High Performance**: Powered by `scrcpy` and `adb` for 2K/4K resolution and up to 120 FPS.
-- **PC Control**: Use your mouse and keyboard to control your Android device directly from the PC.
-- **Audio Forwarding**: Stream device audio to your PC speakers natively.
-- **No Login / No Paywall**: 100% free with no tracking, no watermarks, and no login required.
+- **🆕 Virtual Camera Support**: Mirror your Android screen directly into Zoom, Teams, or OBS as a virtual webcam.
+- **🆕 OBS Plugin Mode**: Optimized one-click setup for streamers to capture gameplay with zero-border windows and always-on-top positioning.
+- **🆕 Multistreaming Support**: Integrated support for multistreaming directly from the scrcpy output.
+- **Plug & Play USB Mirroring**: Connect via USB and mirror instantly.
+- **Wireless Mirroring**: Auto-discover and connect via ADB TCP/IP.
+- **Android 11+ Wireless Pairing**: Pair devices over WiFi via pairing code.
+- **High Performance**: Powered by `scrcpy` 3.0+ for 2K/4K resolution and up to 120 FPS.
+- **PC Control**: Full mouse and keyboard control.
+- **Audio Forwarding**: Native Android audio streaming to PC.
+- **100% Free**: No login, no paywalls, no tracking.
 
-## Prerequisites
+## 🛠️ Prerequisites
 
-Before running the application, ensure you have the following system dependencies installed and added to your Windows PATH:
+Ensure you have the following installed and in your PATH:
 
 1. **ADB (Android Debug Bridge)**  
-   Can be installed via Winget: `winget install Google.PlatformTools`
-2. **scrcpy**  
-   Can be installed via Winget: `winget install Genymobile.scrcpy`
+   `winget install Google.PlatformTools`
+2. **scrcpy** (v2.0+)  
+   `winget install Genymobile.scrcpy`
+3. **FFmpeg** (For streaming/recording)  
+   `winget install Gyan.FFmpeg`
 
-Your Android device must have **USB Debugging** enabled in Developer Options.
+*Enable **USB Debugging** on your Android device in Developer Options.*
 
-## Download & Installation
-
-You can download the pre-compiled executable for Windows from the **Releases** tab.
-
-1. Download `DouWan_Free.exe`.
-2. Double-click the application to launch.
-
-## Building from Source
-
-If you prefer to run or build the application from the source code:
+## 📦 Building from Source
 
 ### Requirements
 - Python 3.10+
-- Flask
-- pywebview
+- Dependencies: `Flask`, `pywebview`, `mss`, `pyvirtualcam`, `opencv-python`, `numpy`, `pygetwindow`
 
-### Setup
+### Installation
 ```bash
 git clone https://github.com/venomrk/duwan-opensource-free-screen-share-pc.git
 cd duwan-opensource-free-screen-share-pc
@@ -49,18 +44,20 @@ cd duwan-opensource-free-screen-share-pc
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Run the application natively
+# Run the application
 python main.py
 ```
 
-### Compiling to Executable
-To package the app into a standalone `.exe`:
+### 🔨 Compiling to Executable
 ```bash
 pip install pyinstaller
-pyinstaller --noconfirm --onefile --windowed --add-data "templates;templates" --add-data "static;static" --name "DouWan_Free" main.py
+pyinstaller DouWan_Free.spec
 ```
-The compiled executable will be located in the `dist/` directory.
 
-## License
+## 🤝 Contributing
 
-This project is open-source. All underlying mirroring technology is powered by the excellent work of [Genymobile/scrcpy](https://github.com/Genymobile/scrcpy).
+This project is built on the shoulders of giants. Special thanks to [Genymobile/scrcpy](https://github.com/Genymobile/scrcpy).
+
+## 📄 License
+
+Open-source under MIT License. No restrictions.

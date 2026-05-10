@@ -1,0 +1,9 @@
+{
+    "platforms": [
+        {"name": "YouTube", "url": "rtmp://a.rtmp.youtube.com/live2", "key": "", "enabled": false},
+        {"name": "Twitch", "url": "rtmp://live.twitch.tv/app", "key": "", "enabled": false},
+        {"name": "Facebook", "url": "rtmps://live-api-s.facebook.com:443/rtmp", "key": "", "enabled": false},
+        {"name": "Instagram", "url": "rtmps://live-upload.instagram.com:443/rtmp", "key": "", "enabled": false},
+        {"name": "TikTok", "url": "rtmp://push-rtmp-f11.tiktokcdn.com/game", "key": "", "enabled": false}
+    ]
+}

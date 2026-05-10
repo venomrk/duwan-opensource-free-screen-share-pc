@@ -25,9 +25,15 @@ app = Flask(__name__,
             static_folder=os.path.join(base_path, 'static'))
 
 # ── Global state ──────────────────────────────────────────────
-active_sessions = {}          # device_id -> Popen handle
-device_cache = []             # last known device list
-scrcpy_path = "scrcpy"        # default: expect in PATH
+from vcam_manager import vcam_manager
+from streaming_service import streaming_service
+active_sessions = {}          # device_id -> dict
+device_cache = []             # Cached device list
+streaming_process = None      # Global streaming process
+SETTINGS_FILE = os.path.join(base_path, "stream_settings.json")
+
+# scrcpy binary — uses PATH by default, override if needed
+scrcpy_path = "scrcpy"
 
 
 # ── Helpers ───────────────────────────────────────────────────
@@ -224,7 +230,7 @@ def api_start_mirror():
     if device_id in active_sessions:
         # Kill existing session first
         try:
-            active_sessions[device_id].terminate()
+            active_sessions[device_id]["process"].terminate()
         except Exception:
             pass
         del active_sessions[device_id]
@@ -255,18 +261,31 @@ def api_start_mirror():
     if fullscreen:
         cmd.append("--fullscreen")
 
-    if record_file:
-        cmd.extend(["--record", record_file])
-
     if title:
         cmd.extend(["--window-title", title])
+
+    if record_file == "STREAM":
+        cmd.extend(["--record", "-", "--record-format", "matroska"])
+        stdout_dest = subprocess.PIPE
+    else:
+        stdout_dest = None
+        if record_file:
+            cmd.extend(["--record", record_file])
 
     try:
         proc = subprocess.Popen(
             cmd,
-            creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == "nt" else 0
+            stdout=stdout_dest,
+            creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == "nt" and record_file != "STREAM" else 0
         )
-        active_sessions[device_id] = proc
+        
+        # Store window title if we set it, otherwise fallback to scrcpy's default logic
+        final_title = title if title else (f"scrcpy {device_id}")
+        
+        active_sessions[device_id] = {
+            "process": proc,
+            "window_title": final_title
+        }
         return jsonify({"success": True, "pid": proc.pid})
     except FileNotFoundError:
         return jsonify({"success": False, "error": "scrcpy not found in PATH. Install scrcpy first."})
@@ -282,7 +301,10 @@ def api_stop_mirror():
 
     if device_id in active_sessions:
         try:
-            active_sessions[device_id].terminate()
+            # Also stop VCam if running
+            vcam_manager.stop_vcam(device_id)
+            
+            active_sessions[device_id]["process"].terminate()
             del active_sessions[device_id]
             return jsonify({"success": True})
         except Exception as e:
@@ -304,6 +326,74 @@ def api_status():
         "active_sessions": len(active_sessions),
         "local_ip": _get_local_ip(),
     })
+
+
+@app.route("/api/vcam/start", methods=["POST"])
+def api_vcam_start():
+    data = request.json
+    device_id = data.get("device_id", "")
+    
+    if device_id not in active_sessions:
+        return jsonify({"success": False, "error": "Device is not mirroring. Start mirroring first."})
+    
+    window_title = active_sessions[device_id]["window_title"]
+    success, msg = vcam_manager.start_vcam(device_id, window_title)
+    return jsonify({"success": success, "message": msg})
+
+
+@app.route("/api/vcam/stop", methods=["POST"])
+def api_vcam_stop():
+    data = request.json
+    device_id = data.get("device_id", "")
+    success, msg = vcam_manager.stop_vcam(device_id)
+    return jsonify({"success": success, "message": msg})
+
+
+# --- Streaming Endpoints ---
+
+@app.route("/api/stream/settings", methods=["GET", "POST"])
+def api_stream_settings():
+    if request.method == "POST":
+        settings = request.json
+        with open(SETTINGS_FILE, "w") as f:
+            json.dump(settings, f, indent=4)
+        return jsonify({"success": True})
+    
+    if not os.path.exists(SETTINGS_FILE):
+        return jsonify({"platforms": []})
+    
+    with open(SETTINGS_FILE, "r") as f:
+        return jsonify(json.load(f))
+
+
+@app.route("/api/stream/start", methods=["POST"])
+def api_stream_start():
+    data = request.json
+    device_id = data.get("device_id", "")
+    
+    if device_id not in active_sessions:
+        return jsonify({"success": False, "error": "Start mirroring in 'Stream Mode' first."})
+    
+    if not os.path.exists(SETTINGS_FILE):
+        return jsonify({"success": False, "error": "No stream settings found."})
+        
+    with open(SETTINGS_FILE, "r") as f:
+        settings = json.load(f)
+    
+    enabled_platforms = [p for p in settings.get("platforms", []) if p.get("enabled") and p.get("key")]
+    
+    if not enabled_platforms:
+        return jsonify({"success": False, "error": "No platforms enabled with stream keys."})
+    
+    scrcpy_proc = active_sessions[device_id]["process"]
+    success, msg = streaming_service.start_stream(scrcpy_proc, enabled_platforms)
+    return jsonify({"success": success, "message": msg})
+
+
+@app.route("/api/stream/stop", methods=["POST"])
+def api_stream_stop():
+    success, msg = streaming_service.stop_stream()
+    return jsonify({"success": success, "message": msg})
 
 
 if __name__ == "__main__":

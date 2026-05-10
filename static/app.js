@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const noDeviceMsg = document.getElementById('no-device-msg');
     const startBtn = document.getElementById('start-btn');
     const stopBtn = document.getElementById('stop-btn');
+    const vcamBtn = document.getElementById('vcam-btn');
+    const activeCtrls = document.getElementById('active-ctrls');
     const statusMsg = document.getElementById('status-msg');
     const ctrlName = document.getElementById('ctrl-device-name');
     const ctrlId = document.getElementById('ctrl-device-id');
@@ -17,8 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const wifiConnectBtn = document.getElementById('wifi-connect-btn');
     const wifiPairBtn = document.getElementById('wifi-pair-btn');
     const wifiSwitchBtn = document.getElementById('wifi-switch-btn');
+    const platformList = document.getElementById('stream-platforms-list');
+    const saveStreamBtn = document.getElementById('save-stream-btn');
+    const goLiveBtn = document.getElementById('go-live-btn');
 
     let selected = null;
+    let vcamActive = false;
+    let streamingActive = false;
+    let streamSettings = { platforms: [] };
 
     // ── Tab switching ──
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -92,10 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show/hide stop vs start
         if (d.mirroring) {
             startBtn.classList.add('hidden');
-            stopBtn.classList.remove('hidden');
+            activeCtrls.classList.remove('hidden');
         } else {
             startBtn.classList.remove('hidden');
-            stopBtn.classList.add('hidden');
+            activeCtrls.classList.add('hidden');
         }
 
         // Fetch extended details
@@ -122,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startBtn.disabled = true;
         startBtn.textContent = 'Starting...';
 
+        const obsPlugin = document.getElementById('opt-obs-plugin').checked;
         const body = {
             device_id: selected.id,
             max_fps: document.getElementById('opt-fps').value,
@@ -130,9 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
             audio: document.getElementById('opt-audio').checked,
             control: document.getElementById('opt-control').checked,
             stay_awake: document.getElementById('opt-awake').checked,
-            borderless: document.getElementById('opt-borderless').checked,
-            always_on_top: document.getElementById('opt-ontop').checked,
+            borderless: obsPlugin || document.getElementById('opt-borderless').checked,
+            always_on_top: obsPlugin || document.getElementById('opt-ontop').checked,
             fullscreen: document.getElementById('opt-fullscreen').checked,
+            record: document.getElementById('opt-stream-mode').checked ? "STREAM" : "",
         };
 
         try {
@@ -141,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.success) {
                 showStatus('Mirroring started!', 'ok');
                 startBtn.classList.add('hidden');
-                stopBtn.classList.remove('hidden');
+                activeCtrls.classList.remove('hidden');
                 selected.mirroring = true;
             } else {
                 showStatus('Error: ' + res.error, 'err');
@@ -159,13 +169,122 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await fetch('/api/stop', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ device_id: selected.id }) });
             showStatus('Mirroring stopped.', 'ok');
-            stopBtn.classList.add('hidden');
+            activeCtrls.classList.add('hidden');
             startBtn.classList.remove('hidden');
             selected.mirroring = false;
+            vcamActive = false;
+            streamingActive = false;
+            updateVCamUI();
+            updateStreamUI();
         } catch (e) {
             showStatus('Error stopping', 'err');
         }
     });
+
+    // ── Virtual Camera ──
+    vcamBtn.addEventListener('click', async () => {
+        if (!selected) return;
+        const endpoint = vcamActive ? '/api/vcam/stop' : '/api/vcam/start';
+        vcamBtn.disabled = true;
+        vcamBtn.textContent = vcamActive ? 'Stopping...' : 'Starting...';
+
+        try {
+            const r = await fetch(endpoint, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ device_id: selected.id }) });
+            const res = await r.json();
+            if (res.success) {
+                vcamActive = !vcamActive;
+                showStatus(res.message, 'ok');
+            } else {
+                showStatus('VCam Error: ' + res.error, 'err');
+            }
+        } catch (e) {
+            showStatus('VCam Connection failed', 'err');
+        }
+        vcamBtn.disabled = false;
+        updateVCamUI();
+    });
+
+    function updateVCamUI() {
+        if (vcamActive) {
+            vcamBtn.textContent = '■ Stop Virtual Cam';
+            vcamBtn.classList.replace('btn-secondary', 'btn-danger');
+        } else {
+            vcamBtn.textContent = '▶ Virtual Cam';
+            vcamBtn.classList.replace('btn-danger', 'btn-secondary');
+        }
+    }
+
+    // ── Streaming Logic ──
+    async function loadStreamSettings() {
+        try {
+            const r = await fetch('/api/stream/settings');
+            streamSettings = await r.json();
+            renderStreamSettings();
+        } catch(e) {}
+    }
+
+    function renderStreamSettings() {
+        if (!platformList) return;
+        platformList.innerHTML = '';
+        streamSettings.platforms.forEach((p, idx) => {
+            const div = document.createElement('div');
+            div.className = 'platform-card';
+            div.innerHTML = `
+                <div class="platform-header">
+                    <span class="platform-name">${p.name}</span>
+                    <label class="toggle"><input type="checkbox" ${p.enabled ? 'checked' : ''} onchange="updatePlatformEnabled(${idx}, this.checked)"><span></span></label>
+                </div>
+                <input type="password" class="platform-key-input" placeholder="Stream Key" value="${p.key}" onchange="updatePlatformKey(${idx}, this.value)">
+            `;
+            platformList.appendChild(div);
+        });
+    }
+
+    window.updatePlatformEnabled = (idx, val) => { streamSettings.platforms[idx].enabled = val; };
+    window.updatePlatformKey = (idx, val) => { streamSettings.platforms[idx].key = val; };
+
+    saveStreamBtn.addEventListener('click', async () => {
+        saveStreamBtn.disabled = true;
+        saveStreamBtn.textContent = 'Saving...';
+        await fetch('/api/stream/settings', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(streamSettings)
+        });
+        showStatus('Stream keys saved!', 'ok');
+        saveStreamBtn.disabled = false;
+        saveStreamBtn.textContent = 'Save Stream Keys';
+    });
+
+    goLiveBtn.addEventListener('click', async () => {
+        if (!selected) return;
+        const endpoint = streamingActive ? '/api/stream/stop' : '/api/stream/start';
+        goLiveBtn.disabled = true;
+        goLiveBtn.textContent = streamingActive ? 'Stopping...' : 'Going Live...';
+
+        try {
+            const r = await fetch(endpoint, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ device_id: selected.id }) });
+            const res = await r.json();
+            if (res.success) {
+                streamingActive = !streamingActive;
+                showStatus(res.message, 'ok');
+            } else {
+                showStatus('Stream Error: ' + res.error, 'err');
+            }
+        } catch (e) { showStatus('Streaming Connection failed', 'err'); }
+        goLiveBtn.disabled = false;
+        updateStreamUI();
+    });
+
+    function updateStreamUI() {
+        if (streamingActive) {
+            goLiveBtn.textContent = '■ Stop Stream';
+            goLiveBtn.classList.replace('btn-primary', 'btn-danger');
+        } else {
+            goLiveBtn.textContent = '🔴 Go Live';
+            goLiveBtn.classList.replace('btn-danger', 'btn-primary');
+        }
+    }
 
     // ── WiFi connect ──
     wifiConnectBtn.addEventListener('click', async () => {
@@ -231,4 +350,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Initial load ──
     fetchDevices();
+    loadStreamSettings();
 });
