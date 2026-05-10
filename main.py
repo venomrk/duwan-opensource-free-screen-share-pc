@@ -3,6 +3,13 @@ import threading
 import sys
 import os
 
+# Ensure we're running from the script's own directory
+# (fixes "No module named 'app'" when launched via shortcut/double-click)
+_script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(_script_dir)
+if _script_dir not in sys.path:
+    sys.path.insert(0, _script_dir)
+
 # Import the Flask app
 from app import app
 
